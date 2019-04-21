@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Rock Paper Scissors | Simple Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="reset.css">
+    <link rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
+      integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr"
+      crossorigin="anonymous">
+
+      <style>
+      #game{
+        display: none;
+      }
+      #game_area{
+        text-align: center;
+
+      }
+      #player_guess_display img {
+        width: 300px;
+        text-align: center;
+      }
+      #computer_guess_dispaly img {
+        width: 300px;
+        text-align: center;
+      }
+      #messages{
+        text-align:center;
+        padding-bottom: 20px;
+
+
+      }
+      p{
+        text-align: center;
+      }
+      .score{
+
+        padding: 15px;
+      }
+      #scores {
+          text-align: center;
+          background-color: whitesmoke;
+          color: black;
+          border: 2px solid black;
+          position: relative;
+          /* left: -135px; */
+          width: 100%;
+          height: auto;
+          padding: 21px;
+          font-weight: 800;
+          line-height: 3;
+          letter-spacing: 6px;
+          font-size: 20px;
+          margin-top: 50px;
+      }
+      .player img{
+        transform: scaleX(-1);
+      }
+      </style>
+  </head>
+
+  <body>
+    <div class="container-fluid px-lg-5">
+    <nav class="nav-bar bg-dark align-middle px-lg-5" style="height:60px;font-size:20px;">
+      <div class="text-light">Rock, Paper, Scissors</div>
+    </nav>
+  </div>
+    <div class="container mt-lg-5">
+      <div id="welcome">
+        <div  class="row">
+        <div class="col"></div>
+        <div class="col-lg-8">
+          <div class="jumbotron">
+            <div class="display-4 center-text">Welcome</div>
+            <p class="lead">
+              
+                <label for="name">Enter Your First Name</label>
+                <input id="pname" type="text" name="name">
+                <button href="#" class="welcom-button" onclick="doWelcome()">Play Now</button>
+            
+            </p>
+          </div>
+        </div>
+        <div class="col"></div>
+      </div>
+      </div>
+      <div id="game">
+        <div class="row">
+        <div class="col"></div>
+        <div class="col-lg-8">
+          <div class="jumbotron">
+            <p class="instructions">Choose Rock, Paper or Scissors by using the
+              keys (r, p, s) </p>
+            <div class="choices">
+                <div id="messages"></div>
+              <div id="game_area"><span class="player" id="player_guess_display"></span><span class="computer" id="computer_guess_dispaly"></span></div>
+            </div>
+            <div id="scores">
+              <span id="pn" class="score player">Player Wins: </span><span
+                  id="player_wins_dispaly">0</span>
+              <span class="score computer">Computer Wins: <span
+                  id="computer_wins_display">0</span></span>
+              <div>Ties: <span id="ties_display">0</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="col"></div>
+      </div>
+    </div>
+    </div>
+    <script>
+      var choices = ["r", "p", "s"],
+        computerScore = 0,
+        playersScore = 0,
+        playerGfx,
+        computerGfx,
+        ties = 0,
+        playerName='';
+
+      rockImg = '<img src="images/rock.png" width="350">';
+      paperImg = '<img src="images/paper.png" width="350">';
+      scissorImg = '<img src="images/scissors.png" width="350">';
+      choiceSprite = [rockImg, paperImg, scissorImg]
+
+     function checkKey(event) {
+        document.getElementById('messages').innerHTML = "";
+        var playersGuess, computerGuess;
+
+        playersGuess = event.key;
+        playerGfx = choiceSprite[choices.indexOf(playersGuess)];
+        computerGuess = choices[Math.floor(Math.random() * choices.length)];
+        computerGfx = choiceSprite[choices.indexOf(computerGuess)];
+
+        if (isPlayerGuessValid(playersGuess)) {
+
+          player_guess_display.innerHTML = playerGfx;
+          computer_guess_dispaly.innerHTML = computerGfx
+
+
+          if (playersGuess == computerGuess) {
+           
+            hideArea();
+            document.getElementById('messages').innerHTML = "<h2>TIE</h2>";
+            showArea();
+            ties_display.textContent = ++ties;
+
+          } else if (playersGuess == 'p' && computerGuess == 'r') {
+
+           
+            hideArea();
+            playWinAnimation('player');
+            showArea();
+            playerWins();
+
+
+          } else if (playersGuess == 'r' && computerGuess == 's') {
+
+            
+            hideArea();
+            playWinAnimation('player');
+            showArea();
+            playerWins();
+
+          } else if (playersGuess == 's' && computerGuess == 'p') {
+
+            hideArea();
+            playWinAnimation('player');
+            showArea();
+            playerWins();
+
+          }else {
+           
+            hideArea();
+            playWinAnimation('computer');
+            showArea();
+            computerWins();
+
+          }
+
+        }
+
+      }
+
+      function hideArea(){
+
+          document.getElementById('game_area').style.visibility = "hidden";
+
+      }
+
+      function showArea(){
+
+        document.getElementById('game_area').style.visibility = "visible";
+      }
+
+      function playWinAnimation(who){
+
+          if(who == 'player'){
+
+            document.getElementById('messages').innerHTML = "";
+            document.getElementById('messages').innerHTML = "<h1>YOU WIN</h2>"; 
+                
+          }else{
+              
+            document.getElementById('messages').innerHTML = "";
+           document.getElementById('messages').innerHTML = "<h1>YOU LOSE</h2>"; 
+                
+          }
+
+
+      }
+
+      function playerWins() {
+
+        player_wins_dispaly.textContent = ++playersScore;
+
+      }
+
+      function computerWins() {
+
+        computer_wins_display.textContent = ++computerScore;
+
+      }
+
+      function isPlayerGuessValid(guess) {
+        guess = guess.toLowerCase();
+        document.getElementById('messages').innerHTML = "";
+        return (guess == "r" || guess == 's' || guess == 'p');
+      }
+
+      function doWelcome() {
+
+        if(pname.value.length){
+        pn.innerHTML = pname.value + "'s Wins: ";
+        }
+        document.getElementById('welcome').style.display = "none";
+        document.getElementById('game').style.display = "block";
+        
+          document.addEventListener('keyup', checkKey);
+        return;
+      }
+    </script>
+  </body>
+
+</html>
