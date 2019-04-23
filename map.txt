@@ -1,0 +1,77 @@
+create player object 
+
+create start screen to ask for player name. wait for another connection
+            |
+            |
+            |
+chat room ---(database)
+            |   
+            |
+            |
+other player enters name and joins the database
+check database for current user object
+
+
+wait till 2 players are in the database
+once othe player is ready show 
+
+
+player object
+game object
+database object
+chatroom object
+startup object
+
+player 
+    id
+    name
+    color
+    wins[oponentID,gameid]
+    loses[oponentID,gameid]
+    ties[oponentID,gameid]
+    inGame
+    currentGameid
+    currentOponentID
+
+
+game
+    id
+    screen
+    player1Id
+    player2Id
+    player1currentPlay
+    player2currentPlay
+    isWaitingForPlayer1
+    isWaitingForPlayer2
+    isActive
+    playTimer
+    gameCount
+
+
+ chat
+    id
+    gameid
+    chatBoxBuffer
+
+database
+        id
+        connection
+        chatBoxid
+        gameid
+        player1Id
+        player1isConnected
+        player2Id
+        player2isConnected
+        chatBoxBuffer
+        Games{
+            gameid
+            playeridofWinner
+            playeridofLooser
+            tie{playerid1,playerid2}
+        }
+        lastPlayers{
+            play1,
+            play2
+        }
+
+

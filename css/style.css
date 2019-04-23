@@ -1,0 +1,67 @@
+ #game {
+     display: none;
+ }
+
+ #game_area {
+     text-align: center;
+
+ }
+
+ #player_guess_display img {
+     width: 300px;
+     text-align: center;
+ }
+
+ #computer_guess_dispaly img {
+     width: 300px;
+     text-align: center;
+ }
+
+ #messages {
+     text-align: center;
+     padding-bottom: 20px;
+
+
+ }
+
+ p {
+     text-align: center;
+ }
+
+ .score {
+
+     padding: 15px;
+ }
+
+ #scores {
+     text-align: center;
+     background-color: whitesmoke;
+     color: black;
+     border: 2px solid black;
+     position: relative;
+     /* left: -135px; */
+     width: 100%;
+     height: auto;
+     padding: 21px;
+     font-weight: 800;
+     line-height: 3;
+     letter-spacing: 6px;
+     font-size: 20px;
+     margin-top: 50px;
+ }
+
+ .player img {
+     transform: scaleX(-1);
+ }
+.lines{
+    list-style: none;
+
+}
+.message-box{
+   
+    overflow: scroll;
+    text-overflow: clip;
+        height: 250px;
+        width: 200px;
+        border: 1px solid black;
+}

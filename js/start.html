@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<head>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<html>
+    <body>
+        <div id="timerDisplay"></div>
+        <p id="genMessage"></p>
+        <div id="step_1">
+        <p>Create</p>
+        <p id="createUserMessage"></p>    
+        <input type="text" name="userName" id="userName">
+        <button id='createUser'>Create User</button>
+        </div>
+
+        <div>
+        <p>Users</p>
+        <ul id="connectedUsers">
+
+        </ul>
+        <button disabled id="playGame">Play</button>
+        </div>
+        <div>
+            <p>Messages</p>
+            <div id="messages" class="message-box">
+                <ul class="lines"></ul>
+            </div>
+        </div>
+        <div>
+            <p>Send Message</p>
+             <input type="text" name="message" id="message">
+             <button id='send'>Send</button>
+        </div>
+
+        <script src="moment.js"></script>
+        <script src="https://code.jquery.com/jquery-3.4.0.min.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/5.10.0/firebase.js"></script>
+        <script src="globals.js"></script>
+        <script src="main.js"></script>
+
+    </body>
+</html>
