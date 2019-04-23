@@ -10,31 +10,24 @@ var thisPlayer
 var players = []
 $(document).ready(function (){
     $('#connectedUsers').val('')
+    $('#players').hide()
     localuser = getLocalUserKey()
 
    
-usersRef.on("child_added", function (_userSnapshot) {
+    database.ref('users').on("child_added", function (_userSnapshot) {
     var k = _userSnapshot.key
-    if (players.length < 2) {
+    
         var u = _userSnapshot.val()
         u.key = k
         players.push(u)
         if ((!isConnected) && k === localuser) {
             connect(u)
         }
-    }
      showUsers();
 }, function (errorObject) {
     console.log("Errors handled: " + errorObject.code)
     });
-    database.ref('users/' + localuser + '/isConnected').on('value', function (snap) {
-        
-        var data = snap.val()
-        if (data) {
-            $('#playGame').prop('disabled','false' )
-        }
-
-    })
+    
 
     $('#createUser').click(function (event) {
         event.preventDefault()
@@ -85,7 +78,7 @@ function startTimer(_user) {
         updateUser(updatedinfo)
         isConnected = true
         return setInterval(tick,1000)
-    }
+    } 
 }
 function updateUser(_update) {
      return database.ref().update(_update);
@@ -121,12 +114,9 @@ function logOff() {
         isConnected = false
         var key = getLocalUser()
         var updatedinfo = {}
-        updatedinfo['/users/' + key ] = {}
+        updatedinfo['/users/' + key + '/isConnected'] = false
         updateUser(updatedinfo)
-        localStorage.clear()
-        $('#createUser').prop('disabled', false)
-        $('#step_1').show()
-        localuser = null
+        
     }
 }
 function addMessage(_message, _userName) {
@@ -138,9 +128,18 @@ function addUser(_userName) {
     var u = new user(_userName)
     u.createdOntimeStamp = timeStamp()
     var k = database.ref('users').push(u).key;
+    localStorage.clear()
     setLocalUser(k)
     localuser = k
     u.key = k
+    database.ref('users/' + localuser + '/isConnected').on('value', function (snap) {
+        
+        var data = snap.val()
+        if (data) {
+            $('#playGame').prop('disabled','false' )
+        }
+
+    })
     connect(u)
     
 }
@@ -152,13 +151,7 @@ function getUser(_key) {
   console.log(p)
     return p
 }
-function createChat() {
-    
 
-}
-function connectUser(_userName) {
-
-}
 function setLocalUser(_key) {
     localStorage.setItem('userId', _key)
 }
@@ -178,20 +171,40 @@ function showMessages() {
 }
 
 function showUsers() {
-    var cn = $('#connectedUsers')
-    $(cn).empty()
-    players.forEach(function (item) {
-        var li = $('<li>')
-        $(li).text(item.userName)
-        $(cn).append(li)
-    })
-}
+    var cn = $('#players-list')
+    if(players.length > 0){
+       
+        $(cn).empty()
+        players.forEach(function (item) {
+            if(item.key != localuser){
+            
+           
+            var button = $('<button>')
+            $(button).text(item.userName)
+            $(button).data("opponent", item.key)
+            $(button).click(function(event){
+                event.preventDefault()
+                var opponent = $(this).data('opponent')
+                $('#playGame').prop('disabled', false).data('opponent',opponent).click(function(event){
+                    event.preventDefault()
+                    playGame($('#playGame').data('opponent'))
+                }
+                ) 
+            })
+            $(cn).append(button)}
+            
+         })
 
+        $('#players').show()
+    }
+}
+function  playGame(_opponent){
+alert("going to play game with Player 1: " + players[0].userName + " and Player 2: " + players[1].userName)
+}
 function showConnectedUsers() {
 
 
 }
-
 function userConnectionTimeOut(_userName) {
 
 

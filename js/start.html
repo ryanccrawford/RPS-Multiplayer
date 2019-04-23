@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <head>
     <link rel="stylesheet" href="../css/style.css">
+    
 </head>
 <html>
     <body>
@@ -12,13 +13,19 @@
         <input type="text" name="userName" id="userName">
         <button id='createUser'>Create User</button>
         </div>
-
+        <div id="players">
+            <p>Avliable Players (Select One to start the Game)</p>
+            <div id="players-list" class="message-box">
+                
+            </div>
+            <button disabled id="playGame">Play</button>
+        </div>
         <div>
         <p>Users</p>
         <ul id="connectedUsers">
 
         </ul>
-        <button disabled id="playGame">Play</button>
+        
         </div>
         <div>
             <p>Messages</p>

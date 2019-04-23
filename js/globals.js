@@ -16,11 +16,14 @@ var messagesRef = database.ref('messages')
 
 var user = function (_userName) {
     return {
+        userKey: null,  
         userName: _userName,
         createdOntimeStamp: null,
-        isConnected: false
+        isConnected: false,
+        isPlayingGame: false
     }
 }
+
 
 var message = function (_userKey,_timeStamp,_message) {
     return {
