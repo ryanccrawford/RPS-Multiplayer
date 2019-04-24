@@ -1,4 +1,7 @@
+
+localStorage.clear()
 // Initialize Firebase Database
+
 var config = {
     apiKey: "AIzaSyBjJ_oHsxoGsPS7Nv1YJzdSZQ9s99QTIAc",
     authDomain: "rpsmp-7bc44.firebaseapp.com",
@@ -14,13 +17,14 @@ var database = firebase.database()
 var usersRef = database.ref('users')
 var messagesRef = database.ref('messages')
 
-
+localStorage.clear()
 //objects Vars
 var user = function (_userName) {
     return {
         userKey: null,
         userName: _userName,
         createdOntimeStamp: null,
+        lastAccessed: null,
         isConnected: false,
         isPlayingGame: false,
         color: !(0X000000),
@@ -30,23 +34,22 @@ var user = function (_userName) {
     }
 }
 
-var gameOject = function () {
-    return {
+var gameOject = {
+        isPlaying: false,
         gameKey: null,
         moveCount: 0,
-        player1Key: null,
-        player2Key: null,
-        player1Wins: 0,
-        player2Wins: 0,
-        Player1Losses: 0,
-        player2Losses: 0,
-        player1Ties: 0,
-        player2Ties: 0,
+        player1userKey: null,
+        player1user: {},
+        player2userKey: null,
+        player2user: {},
+        wins: 0,
+        losses: 0,
+        ties: 0,
         numberOfRoundsPlayed: 0,
         timeStarted: null,
         timeFinished: null,
         winner: null
-    }
+
 }
 
 var message = function (_userKey, _timeStamp, _message) {
@@ -90,47 +93,40 @@ var playerTimer = function () {
 }
 
 
-var step = 1;
-var player1 = new player(1);
-var player2 = new player(2);
 var curentPlayers = []
-var choices = ["r", "p", "s"],
-    computerScore = 0,
-    playersScore = 0,
-    player1Gfx,
-    players2Gfx,
-    ties = 0,
-    playerName = '',
-    rockImg = '<img src="images/rock.png" width="350">';
-paperImg = '<img src="images/paper.png" width="350">';
-scissorImg = '<img src="images/scissors.png" width="350">';
-choiceSprite = [rockImg, paperImg, scissorImg]
-playerList = [],
+var choices = ["r", "p", "s"]
+var rockImg = '<img src="images/rock.png" width="350">';
+var paperImg = '<img src="images/paper.png" width="350">';
+var scissorImg = '<img src="images/scissors.png" width="350">';
+var choiceSprite = [rockImg, paperImg, scissorImg],
+    playerList = [],
     localuser,
-    allUsers = []
-timeOut,
-logoutTimer,
-isConnected = false,
+    allUsers = [],
+    timeOut,
+    logoutTimer,
+    isConnected = false,
     timerCount = 180,
     timer,
     thisPlayer,
+    opponent,
     players = []
-
-
 
 $(document).ready(function () {
 
     //if the move count changes in the database that means we have a move from a player
-    database.ref('playerinput/' + _gameKey + "/" + _moveCount).on("value_change", function (snap) {
-        alert("Player Moved")
-
-    })
+   
+    database.ref('game').remove()
+    database.ref('game').off()
 
     $('#connectedUsers').val('')
     $('#players').hide()
+    $('#chat').hide()
+   // $('#')
+   // $('#')
     localuser = getLocalUserKey()
-
-
+    $('#cleardata').click(cleardata)
+    // Database on Change Functions
+    //User Child Added
     database.ref('users').on("child_added", function (_userSnapshot) {
         var k = _userSnapshot.key
 
@@ -145,13 +141,104 @@ $(document).ready(function () {
         console.log("Errors handled: " + errorObject.code)
     });
 
+    //Messages Child Added
+    database.ref('messages').on("child_added", function (_messageSnapshot) {
+        var message = _messageSnapshot.val()
+        appendMessage(message.message)
+    }, function (errorObject) {
+        console.log("Errors handled: " + errorObject.code)
+    });
 
+    database.ref('game').on('child_added',function(snap){
+       
+        var addedKeyPress= snap.val()
+                
+        if(addedKeyPress.userKey != localuser){
+            gameOject.players2Guess = addedKeyPress.keyPressed
+            gameOject.players2Gfx = choiceSprite[choices.indexOf(gameOject.players2Guess)];
+
+    
+                    if (isPlayerGuessValid(gameOject.players2Guess)) {
+
+        
+                       
+       
+                        $('#player2guess').html(gameOject.players2Gfx)
+
+
+        
+                        if (gameOject.players1Guess ==  gameOject.players2Guess) {
+
+           
+                            hideArea();
+            
+                            $('#messages').html("<h2>TIE</h2>");
+            
+                            showArea();
+                            gameOject.numberOfRoundsPlayed++
+                            gameOject.ties++
+
+        
+                        } else if (gameOject.players1Guess == 'p' && gameOject.players2Guess == 'r') {
+
+
+         
+                            hideArea();
+           
+                            playWinAnimation('player');
+           
+                            showArea();
+           
+                            playerWins();
+
+
+       
+                        } else if (gameOject.players1Guess == 'r' && gameOject.players2Guess == 's') {
+
+
+           
+                            hideArea();
+            
+                            playWinAnimation('player');
+            
+                            showArea();
+           
+                            playerWins();
+
+        
+                        } else if (gameOject.players1Guess == 's' && gameOject.players2Guess == 'p') {
+
+                            hideArea();
+                            playWinAnimation('player');
+                            showArea();
+                            playerWins();
+
+                        } else {
+
+                            hideArea();
+                            playWinAnimation('computer');
+                            showArea();
+                            computerWins();
+
+       
+                        }
+
+    
+                    }
+        
+                }
+    
+            })
+
+    // Button Click Functions
+    //Create User
     $('#createUser').click(function (event) {
         event.preventDefault()
         createUser(this);
 
     })
 
+    //Send Chat Message
     $('#send').click(function (event) {
         event.preventDefault()
 
@@ -163,23 +250,17 @@ $(document).ready(function () {
         }
     })
 
-    messagesRef.on("child_added", function (_messageSnapshot) {
-        var message = _messageSnapshot.val()
-        appendMessage(message.message)
-    }, function (errorObject) {
-        console.log("Errors handled: " + errorObject.code)
-    });
-
 
 
 })
 
+
+//-----------------------------------------------FUNCTIONS ----------------------------------------------------//
 //messaging functions
 function appendMessage(_message) {
     var li = $('<li>')
-    var lli = $('<li>')
     $(li).text(_message)
-    $('.lines').append(li).append(lli)
+    $('.lines').append(li)
 }
 
 function addMessage(_message, _userName) {
@@ -187,10 +268,25 @@ function addMessage(_message, _userName) {
     mess.timeStamp = timeStamp()
     return messagesRef.push(mess).key;
 }
+function cleardata(){
+    database.ref().remove();
+}
 
 //user functions
 function updateUser(_update) {
     return database.ref().update(_update);
+}
+
+function updateLastAccessed(_userKey){
+    var updatedinfo = {}
+    updatedinfo['/users/' + _userKey + '/lastAccessed'] = timeStamp()
+    updateUser(updatedinfo)
+}
+
+function clearConnections(_timeInterval){
+ 
+    
+
 }
 
 function connect(_user) {
@@ -268,18 +364,18 @@ function showUsers() {
 
         $(cn).empty()
         players.forEach(function (item) {
-            if (item.key != localuser) {
+            if ((item.userKey != localuser) && item.isConnected) {
 
 
                 var button = $('<button>')
                 $(button).text(item.userName)
-                $(button).data("opponent", item.key)
+                $(button).attr("data-opponent", item.userKey)
                 $(button).click(function (event) {
                     event.preventDefault()
-                    var opponent = $(this).data('opponent')
-                    $('#playGame').prop('disabled', false).data('opponent', opponent).click(function (event) {
+                    var opponent = $(this).attr('data-opponent').val()
+                    $('#playGame').prop('disabled', false).attr('data-opponent', opponent).click(function (event) {
                         event.preventDefault()
-                        playGame($('#playGame').data('opponent'))
+                        playGame($('#playGame').attr('data-opponent').val())
                     })
                 })
                 $(cn).append(button)
@@ -321,69 +417,46 @@ function timeOutWaring() {
 }
 
 
-
 //Game Functions
 function playGame(_opponent) {
-    alert("going to play game with Player 1: " + players[0].userName + " and Player 2: " + players[1].userName)
+    
+    opponent = null
+    opponent = _opponent
+    reset() 
+    $('#chat').show()
+    $(document).keyup(checkKey)
+}
+function reset(){
+    $('#players').hide()
+    $('#playGame').hide()
+    $('#connectedUsersDisplay').hide()
+    $('#game').show()
+    $('#game_area').show()
+    var pl1 = getUser(localuser)
+    var pl2 = getUser(opponent)
+    gameOject.player1userKey = localuser
+    gameOject.player2userKey = opponent
+    gameOject.player1user = pl1
+    gameOject.player2user = pl2
+    gameOject.isPlaying = true
+    gameOject.players1Guess = null
+    gameOject.players2Guess = null
+        gameOject.player1Gfx = null
+        gameOject.player2Gfx = null
 }
 
 function checkKey(event) {
-   
-    var players1Guess, players2Guess;
 
-    players1Guess = event.key;
-    player1Gfx = choiceSprite[choices.indexOf(players1Guess)];
-    players2Guess = choices[Math.floor(Math.random() * choices.length)];
-    players2Gfx = choiceSprite[choices.indexOf(players2Guess)];
-
-    if (isPlayerGuessValid(players1Guess)) {
-
-        player1_guess_display.innerHTML = player1Gfx;
-        player2_guess_dispaly.innerHTML = players2Gfx
-
-
-        if (players1Guess == players2Guess) {
-
-            hideArea();
-            document.getElementById('messages').innerHTML = "<h2>TIE</h2>";
-            showArea();
-            ties_display.textContent = ++ties;
-
-        } else if (players1Guess == 'p' && players2Guess == 'r') {
-
-
-            hideArea();
-            playWinAnimation('player');
-            showArea();
-            playerWins();
-
-
-        } else if (players1Guess == 'r' && players2Guess == 's') {
-
-
-            hideArea();
-            playWinAnimation('player');
-            showArea();
-            playerWins();
-
-        } else if (players1Guess == 's' && players2Guess == 'p') {
-
-            hideArea();
-            playWinAnimation('player');
-            showArea();
-            playerWins();
-
-        } else {
-
-            hideArea();
-            playWinAnimation('computer');
-            showArea();
-            computerWins();
-
-        }
-
+    if(gameOject.players1Guess === null){
+    var keyp = event.key;
+        if(isPlayerGuessValid(keyp)){
+            gameOject.players1Guess = keyp
+            gameOject.player1Gfx = choiceSprite[choices.indexOf(gameOject.players1Guess)]
+            $('#player1guess').html(gameOject.players1Gfx)
+            var keyobject = {userKey:gameOject.player1userKey, keyPressed: gameOject.players1Guess}
+            database.ref('game').push(keyobject)
     }
-
+}
 }
 
 function hideArea() {
@@ -401,13 +474,13 @@ function playWinAnimation(who) {
 
     if (who == 'player') {
 
-        document.getElementById('messages').innerHTML = "";
-        document.getElementById('messages').innerHTML = "<h1>YOU WIN</h2>";
+        $('#messages').html("")
+        $('#messages').html("<h1>YOU WIN</h2>")
 
     } else {
 
-        document.getElementById('messages').innerHTML = "";
-        document.getElementById('messages').innerHTML = "<h1>YOU LOSE</h2>";
+        $('#messages').html("");
+        $('#messages').html("<h1>YOU LOSE</h2>")
 
     }
 
@@ -416,18 +489,18 @@ function playWinAnimation(who) {
 
 function playerWins() {
 
-    player_wins_dispaly.textContent = ++playersScore;
+    $('#player_wins_dispaly').text(gameOject.wins);
 
 }
 
 function computerWins() {
 
-    computer_wins_display.textContent = ++computerScore;
+    $('computer_wins_display').text(gameOject.losses);
 
 }
 
 function isPlayerGuessValid(guess) {
-    guess = guess.toLowerCase().trim()
+    var guess = guess.toLowerCase().trim()
     $('#messages').empty()
     return (guess == "r" || guess == 's' || guess == 'p');
 }
@@ -443,6 +516,4 @@ function writePlayerInput(_userKey, _keyPressed, _gameKey, _moveCount) {
 
 }
 
-function readPlayerInput(_userKey, _gameKey, _moveCount) {
-    database.ref('playerinput/' + _gameKey + "/" + _moveCount)
-}
+

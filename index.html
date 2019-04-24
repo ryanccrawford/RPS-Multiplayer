@@ -23,7 +23,7 @@
   <div class="container mt-lg-12">
     <div id="welcome">
       <div class="row">
-        <div class="col"></div>
+        
         <div class="col-lg-12">
         <div id="timerDisplay"></div>
         <p id="genMessage"></p>
@@ -40,7 +40,7 @@
           </div>
           <button disabled id="playGame">Play</button>
         </div>
-        <div>
+        <div id="connectedUsersDisplay">
           <p>Users</p>
           <ul id="connectedUsers">
 
@@ -50,12 +50,12 @@
         
         </div>
         </div>
-        <div class="col"></div>
+       
       </div>
     </div>
     <div id="game">
       <div class="row">
-        <div class="col"></div>
+      
         <div class="col-lg-12">
           <div class="card">
             <p class="instructions">Choose Rock, Paper or Scissors by using the
@@ -72,28 +72,36 @@
                     <span class="player2" id="player2guess"></span>
                     <div id="player2score"></div>
                   </div>
+                  <div id="scores">
+                    <span id="pn" class="score player">Player Wins: </span><span
+                        id="player_wins_dispaly">0</span>
+                    <span class="score computer">Computer Wins: <span
+                        id="computer_wins_display">0</span></span>
+                    <div>Ties: <span id="ties_display">0</span></div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="col"></div>
+       
       </div>
     </div>
     <div class="row mt-4">
+        <button id="cleardata">Clear Database</button>
       <div class="col-s-10">
 
 
-        <div class="form-group">
+        <div id="chat" class="form-group">
          <div>
            <p>Messages</p>
-           <div id="messages" class="message-box">
+           <div id="chatmessages" class="messagebox">
              <ul class="lines"></ul>
            </div>
          </div>
          <div>
            <p>Send Message</p>
-           <input type="text" name="message" id="message">
+           <input type="text" name="chatmessage" id="chatmessage">
            <button id='send'>Send</button>
          </div>
 
