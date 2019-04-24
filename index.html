@@ -25,37 +25,30 @@
       <div class="row">
         <div class="col"></div>
         <div class="col-lg-12">
-          <div class="card mt-5 p-3">
-            <div class="card-title center-text">Start here</div>
-            <div id="step_1" class="form-group d-none">
-              <p class="lead" data-step=1>Ready to play? First lets get your name.
-                <label for="name">Enter Your First Name</label>
-                <input id="pname" type="text" name="name">
-                <button id="step_1_next" disabled class="welcom-button">Next</button>
-              </p>
-            </div>
+        <div id="timerDisplay"></div>
+        <p id="genMessage"></p>
+        <div id="step_1">
+          <p>Create</p>
+          <p id="createUserMessage"></p>
+          <input type="text" name="userName" id="userName">
+          <button id='createUser'>Create User</button>
+        </div>
+        <div id="players">
+          <p>Avliable Players (Select One to start the Game)</p>
+          <div id="players-list" class="message-box">
 
-            <div id="step_2 " class="form-group d-none">
-              <p class="lead" data-step=2>Select Your Color
-                <div class="btn-group" data-toggle="buttons">
-                  <label class="btn btn-primary active">
-                    <input type="radio" name="color" value=0XFF0000 autocomplete="off" checked>
-                  </label>
-                  <label class="btn btn-danger">
-                    <input type="radio" name="color" value=0X0000FF autocomplete="off">
-                  </label>
-                </div>
-                <button id="step_2_next" class="connect" disabled>Next</button>
-              </p>
-            </div>
-            <div id="step_3" class="form-group d-none">
-              <p class="lead hidden data-step=3">Waiting for other players to join
-                <label for="name">Other Players</label>
-                <textarea readonly id="otherPlayers" type="textarea" name="otherPlayers">Waiting ...</textarea>
-                <button class="connect" disabled>Play</button>
-              </p>
-            </div>
           </div>
+          <button disabled id="playGame">Play</button>
+        </div>
+        <div>
+          <p>Users</p>
+          <ul id="connectedUsers">
+
+          </ul>
+
+        </div>
+        
+        </div>
         </div>
         <div class="col"></div>
       </div>
@@ -92,31 +85,29 @@
 
 
         <div class="form-group">
-          <label for="chatBox">Chat Area</label>
-          <textarea class="form-control" readonly name="chatBox" id="chatBox" rows="8"></textarea>
-          
-          <label for="sayIt">Chat</label>
-          <small id="helpId" class="form-text text-muted">Type something, then press send or enter.</small>
-         <div class="row">
-           <div class="col-10 w-100">
-             <input type="text" class="form-control" id="sayIt" name="sayIt" aria-describedby="helpId"
-               placeholder="">
-           </div>
-           <div class="col-2 m-l2">
-             <button type="submit" id="chatSend" class="btn btn-primary">send</button>
+         <div>
+           <p>Messages</p>
+           <div id="messages" class="message-box">
+             <ul class="lines"></ul>
            </div>
          </div>
+         <div>
+           <p>Send Message</p>
+           <input type="text" name="message" id="message">
+           <button id='send'>Send</button>
+         </div>
+
+        
+        </div>
           
         </div>
       </div>
       <div class="col-s-2 ml-2">
-        <div class="form-group">
-          <label for="connected">Connected</label>
-          <textarea class="form-control" readonly name="connected" id="connected" rows="8"></textarea>
-        </div>
+      
       </div>
     </div>
   </div>
+   <script src="moment.js"></script>
   <script src="https://code.jquery.com/jquery-3.4.0.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/5.10.0/firebase.js"></script>
   <script src="js/app.js"></script>
