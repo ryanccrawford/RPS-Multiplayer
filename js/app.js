@@ -1,7 +1,4 @@
-
-localStorage.clear()
-// Initialize Firebase Database
-
+//Initialize Firebase Database
 var config = {
     apiKey: "AIzaSyBjJ_oHsxoGsPS7Nv1YJzdSZQ9s99QTIAc",
     authDomain: "rpsmp-7bc44.firebaseapp.com",
@@ -11,13 +8,12 @@ var config = {
     messagingSenderId: "106300897679"
 };
 firebase.initializeApp(config);
-
 //Create database references
-var database = firebase.database()
-var usersRef = database.ref('users')
-var messagesRef = database.ref('messages')
+var database = firebase.database();
+var usersRef = database.ref('users');
+var messagesRef =  database.ref('messages');
+    
 
-localStorage.clear()
 //objects Vars
 var user = function (_userName) {
     return {
@@ -110,6 +106,7 @@ var choiceSprite = [rockImg, paperImg, scissorImg],
     thisPlayer,
     opponent,
     players = []
+    isNewUserAdding = false
 
 $(document).ready(function () {
 
@@ -124,19 +121,53 @@ $(document).ready(function () {
    // $('#')
    // $('#')
     localuser = getLocalUserKey()
+    database.ref().on('child_added', function (snap) {
+        var data = snap.val()
+
+    })
+    
     $('#cleardata').click(cleardata)
     // Database on Change Functions
     //User Child Added
     database.ref('users').on("child_added", function (_userSnapshot) {
-        var k = _userSnapshot.key
+       
 
-        var u = _userSnapshot.val()
-        u.key = k
-        players.push(u)
-        if ((!isConnected) && k === localuser) {
+        var u = _userSnapshot.val();
+        var k = _userSnapshot.key
+        u.userKey = k
+        if (isNewUserAdding) {
+            isNewUserAdding = false
+            setLocalUser(k)
+            localuser = k
+            players.push(u)
+            database.ref('users/' + k + '/isConnected').on('value', function (snap) {
+
+                 var data = snap.val()
+                 if (data) {
+                     $('#playGame').prop('disabled', 'false')
+                 }
+
+             })
             connect(u)
+            return
         }
+        if (k === localuser) {
+            if (!players.includes(k)) {
+                 players.push(u)
+            }
+            if ((!isConnected) && k === localuser) {
+                connect(u)
+            }
+            showUsers();
+            return
+        }
+        if (players.includes(k)) {
+            showUsers();
+            return
+        }
+        players.push(u)
         showUsers();
+
     }, function (errorObject) {
         console.log("Errors handled: " + errorObject.code)
     });
@@ -292,8 +323,15 @@ function clearConnections(_timeInterval){
 function connect(_user) {
     $('#createUser').prop('disabled ', true)
     $('#step_1').hide()
-    $('#genMessage').text('Welcome back ' + _user.userName)
-    timer = startTimer(_user)
+    $('#genMessage').text('Hello ' + _user.userName)
+    if (!isConnected) {
+        _user.isConnected = true
+        var updatedinfo = {}
+        updatedinfo['/users/' + _user.userKey + '/isConnected'] = true
+        updateUser(updatedinfo)
+        isConnected = true
+        
+    }
 }
 
 function createUser(_thisRef) {
@@ -321,20 +359,10 @@ function logOff() {
 function addUser(_userName) {
     var u = new user(_userName)
     u.createdOntimeStamp = timeStamp()
+    isNewUserAdding = true;
     var k = database.ref('users').push(u).key;
-    localStorage.clear()
-    setLocalUser(k)
-    localuser = k
-    u.key = k
-    database.ref('users/' + localuser + '/isConnected').on('value', function (snap) {
-
-        var data = snap.val()
-        if (data) {
-            $('#playGame').prop('disabled', 'false')
-        }
-
-    })
-    connect(u)
+   
+   
 
 }
 
@@ -353,7 +381,7 @@ function setLocalUser(_key) {
 }
 
 function getLocalUserKey() {
-    var key = localStorage.getItem('userId')
+    var key = (typeof (localStorage.getItem('userId')) == 'undefined') ? '' : localStorage.getItem('userId')
     return key
 }
 
@@ -364,22 +392,28 @@ function showUsers() {
 
         $(cn).empty()
         players.forEach(function (item) {
-            if ((item.userKey != localuser) && item.isConnected) {
+            
+            if (item.userKey == localuser) {
+                
+            } else {
+                 if ((item.userKey != localuser) && item.isConnected) {
 
 
-                var button = $('<button>')
-                $(button).text(item.userName)
-                $(button).attr("data-opponent", item.userKey)
-                $(button).click(function (event) {
-                    event.preventDefault()
-                    var opponent = $(this).attr('data-opponent').val()
-                    $('#playGame').prop('disabled', false).attr('data-opponent', opponent).click(function (event) {
-                        event.preventDefault()
-                        playGame($('#playGame').attr('data-opponent').val())
-                    })
-                })
-                $(cn).append(button)
+                     var button = $('<button>')
+                     $(button).text(item.userName)
+                     $(button).attr("data-opponent", item.userKey)
+                     $(button).click(function (event) {
+                         event.preventDefault()
+                         var opponent = $(this).attr('data-opponent')
+                         $('#playGame').prop('disabled', false).attr('data-opponent', opponent).click(function (event) {
+                             event.preventDefault()
+                             playGame($('#playGame').attr('data-opponent'))
+                         })
+                     })
+                     $(cn).append(button)
+                 }
             }
+           
 
         })
 
@@ -392,7 +426,7 @@ function startTimer(_user) {
     if (!isConnected) {
         _user.isConnected = true
         var updatedinfo = {}
-        updatedinfo['/users/' + _user.key + '/isConnected'] = true
+        updatedinfo['/users/' + _user.userkey + '/isConnected'] = true
         updateUser(updatedinfo)
         isConnected = true
         return setInterval(tick, 1000)
